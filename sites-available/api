@@ -1,0 +1,41 @@
+# COMMENT TO HAVE SYNTAX HIGHLIGHTING IN VIM
+server {
+	listen   80; ## listen for ipv4; this line is default and implied
+	#listen   [::]:80 default_server ipv6only=on; ## listen for ipv6
+	include snippets/extra-security.conf;
+
+	# Make site accessible from http://api.wikijourney.eu/
+	server_name api.wikijourney.eu;
+	root /path/to/root;
+	index index.php;
+	charset utf-8;
+
+	location / {
+		try_files $uri $uri/ =404;
+		include snippets/cors.conf;
+	}
+	
+	include snippets/php.conf;
+	include snippets/protect-system-files.conf;
+}
+
+server {
+	listen   443 http2; ## listen for ipv4
+	include snippets/extra-security.conf;
+	include snippets/ssl.conf;
+
+        # Make site accessible from https://api.wikijourney.eu (not yet redirected)
+        server_name api.wikijourney.eu;
+	root /path/to/root;
+	index index.php;
+	charset utf-8;
+
+	location / {
+		try_files $uri $uri/ =404
+		include snippets/cors.conf;
+
+	}
+
+	include snippets/php.conf;
+	include snippets/protect-system-files.conf;
+}

@@ -1,0 +1,37 @@
+## REDIRECTIONS
+server {
+	listen   80; ## listen for ipv4; this line is default and implied
+	#listen   [::]:80 default_server ipv6only=on; ## listen for ipv6
+	include snippets/extra-security.conf;
+
+	server_name blog.wikijourney.eu;
+
+	return 301 https://blog.wikijourney.eu$request_uri;
+}
+## END REDIRECTIONS
+
+server {
+	listen   443 http2; ## listen for ipv4
+	include	snippets/ssl.conf;
+	include snippets/extra-security.conf;
+
+	# Make site accessible from http://blog.wikijourney.eu
+	server_name blog.wikijourney.eu;
+	root /path/to/root;
+	index index.html index.htm index.php;
+
+	location / {
+		# First attempt to serve request as file, then
+		# as directory, then fall back to displaying a 404.
+		try_files $uri $uri/ =404;
+		# Uncomment to enable naxsi on this location
+		# include /etc/nginx/naxsi.rules
+	}
+
+	include snippets/cache.conf;
+
+	error_page 404 /404.html;
+	
+	include snippets/php.conf;
+	include snippets/protect-system-files.conf;
+}

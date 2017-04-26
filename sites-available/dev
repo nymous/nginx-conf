@@ -1,0 +1,56 @@
+# VERSION HTTP
+server {
+	listen   80; ## listen for ipv4; this line is default and implied
+	#listen   [::]:80 default_server ipv6only=on; ## listen for ipv6
+	include snippets/extra-security.conf;
+
+	# Make site accessible from http://localhost/
+	server_name dev.wikijourney.eu;
+	root /path/to/root;
+	index index.html index.htm index.php;
+	charset utf-8;
+
+	location / {
+		# First attempt to serve request as file, then
+		# as directory, then fall back to displaying a 404.
+		try_files $uri $uri/ =404;
+		# Uncomment to enable naxsi on this location
+		# include /etc/nginx/naxsi.rules
+	}
+
+	include snippets/cache.conf;
+	
+	error_page 404 /404.html;
+
+	include snippets/php.conf;
+	include snippets/protect-system-files.conf;
+}
+
+server {
+	listen   443 ssl http2; ## listen for ipv4
+	include snippets/ssl.conf;
+	include snippets/extra-security.conf;
+
+	# Make site accessible from http://dev.wikijourney.eu
+	server_name dev.wikijourney.eu;
+	root /path/to/root;
+	index index.html index.htm index.php;
+	charset utf-8;
+
+	include snippets/csp.conf;
+
+	location / {
+		# First attempt to serve request as file, then
+		# as directory, then fall back to displaying a 404.
+		try_files $uri $uri/ =404;
+		# Uncomment to enable naxsi on this location
+		# include /etc/nginx/naxsi.rules
+	}
+
+	include snippets/cache.conf;
+
+	error_page 404 /404.html;
+
+	include snippets/php.conf;	
+	include snippets/protect-system-files.conf;
+}

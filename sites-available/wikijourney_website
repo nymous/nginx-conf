@@ -1,0 +1,46 @@
+## REDIRECTIONS
+server {
+	listen   80; ## listen for ipv4; this line is default and implied
+	#listen   [::]:80 default_server ipv6only=on; ## listen for ipv6
+	include snippets/extra-security.conf;
+
+	# Redirect from http://wikijourney.eu/ AND http://www.wikijourney.eu/ TO https://www.wikijourney.eu
+	server_name wikijourney.eu www.wikijourney.eu;
+
+	# Redirect to https version
+	return 301 https://www.wikijourney.eu$request_uri;
+}
+
+server {
+	listen 443;
+	server_name wikijourney.eu;
+
+	# ssl settings
+	include snippets/ssl.conf;
+	include snippets/extra-security.conf;
+
+	return 301 https://www.wikijourney.eu$request_uri;
+
+}
+## END REDIRECTIONS
+
+server {
+	listen   443 http2; ## listen for ipv4
+	include snippets/ssl.conf;
+	include snippets/extra-security.conf;
+	
+	# Make site accessible from https://www.wikijourney.eu (redirection is handled above)
+	server_name www.wikijourney.eu;
+	root /path/to/root/;
+	index index.html index.htm index.php;
+	charset utf-8;
+
+	location / {
+		try_files $uri $uri/ =404;
+		fastcgi_read_timeout 300;
+	}
+
+	include snippets/cache.conf;
+	include snippets/php.conf;
+	include snippets/protect-system-files.conf;
+}
